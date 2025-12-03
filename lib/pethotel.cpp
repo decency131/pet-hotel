@@ -1,6 +1,8 @@
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <sstream>
 #include <unordered_map>
 #include <vector>
 
@@ -53,6 +55,8 @@ PetHotel::PetHotel(const std::string& jsonfile) : filename(jsonfile) {
             std::exit(0);
         }
     }
+    name = j.value("name", "hotel");
+    address = j.value("address", "middle of nowhere");
 
     std::unordered_map<int, Animal*> animals_by_id;
     // filling the animals vector
@@ -102,7 +106,78 @@ PetHotel::PetHotel(const std::string& jsonfile) : filename(jsonfile) {
     }
 }
 
-PetHotel::~PetHotel() {}
+PetHotel::~PetHotel() {
+    json j;
+    
+    j["name"] = name;
+    j["address"] = address;
+    
+    for (auto* a : animals){
+        json ja;
+        ja["id"] = a->get_ID();
+        ja["age"] = a->get_age();
+        ja["owner_id"] = a->get_owner_id();
+        ja["name"] = a->get_name();
+        ja["breed"] = a->get_breed();
+        ja["care"] = a->get_careSchedule();
+        ja["neighbours"] = a->get_neighbours();
+        
+        if(dynamic_cast<Dog*>(a)){
+            auto* d = (Dog*)a;
+            ja["type"] = "dog";
+            ja["weight"] = d->get_weight();
+        }
+        if(dynamic_cast<Cat*>(a)){
+            auto* c = (Cat*)a;
+            ja["type"] = "cat";
+            ja["weight"] = c->get_weight();
+        }
+        if(dynamic_cast<Rodent*>(a)){
+            auto* r = (Rodent*)a;
+            ja["type"] = "dog";
+            ja["rodent_type"] = r->get_type();
+        }
+        
+        j["animals"].push_back(ja);
+    }
+    
+    for (auto* k : kennels){
+        json jk;
+        
+        jk["id"] = k->get_ID();
+        jk["size"] = k->get_size();
+        for (auto* a : k->get_animals()){
+            jk["animals"].push_back(a->get_ID());
+        }
+        
+        j["kennels"].push_back(jk);
+    }
+    
+    for (auto* r : reservations){
+        json jr;
+        
+        jr["id"] = r->get_ID();
+        
+        std::chrono::year_month_day start_date = r->get_startDate();
+        std::chrono::year_month_day end_date = r->get_endDate();
+        std::ostringstream start_date_s;
+        std::ostringstream end_date_s;
+        
+        start_date_s << int(start_date.year()) << "-" << unsigned(start_date.month()) << "-" << unsigned(start_date.day());
+        end_date_s << int(end_date.year()) << "-" << unsigned(end_date.month()) << "-" << unsigned(end_date.day());
+
+        for (auto* a : r->get_animals()){
+            jr["animals"].push_back(a->get_ID());
+        }
+        
+        j["reservations"].push_back(jr);
+    }
+    
+    {
+        std::ofstream out(filename);
+        out << j.dump(4);
+    }
+}
 
 std::string PetHotel::getName() const { return name; }
 std::string PetHotel::getAddress() const { return address; }
