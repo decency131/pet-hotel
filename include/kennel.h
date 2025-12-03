@@ -19,20 +19,19 @@ public:
     Kennel(int ID, const std::string& size, int capacity, const std::string& type, const std::vector<Animal*>& animals, bool isEmpty);
     ~Kennel();
 
-    int getID() const;
-    std::string getSize() const;
-    int getCapacity() const;
-    std::string getType() const;
-    std::vector<Animal*> getAnimals() const;
-    bool getIsEmpty() const;
+    int get_ID() const;
+    std::string get_size() const;
+    int get_capacity() const;
+    std::string get_type() const;
+    std::vector<Animal*> get_animals() const;
+    bool get_isEmpty() const;
 
-    void setID(int id);
-    void setSize(const std::string& size);
-    void setCapacity(int cap);
-    void setType(const std::string& type);
-    void setAnimals(const std::vector<Animal*>& animalList);
-    void setIsEmpty(bool val);
+    void set_ID(int id);
+    void set_size(const std::string& size);
+    void set_capacity(int cap);
+    void set_type(const std::string& type);
+    void set_animals(const std::vector<Animal*>& animalList);
+    void set_isEmpty(bool val);
 };
 
 #endif
-

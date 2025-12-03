@@ -4,19 +4,19 @@
 #include "animal.h"
 
 class Dog : public Animal {
-private:
+   private:
     int weight;
 
-public:
+   public:
     Dog();
-    Dog(int ID, const std::string& name, const std::string& birthDate, const std::string& breed, const std::string& careSchedule, int weight);
+    Dog(int ID, const std::string& name, int age, const std::string& breed,
+        const std::string& careSchedule, bool neighbours, int owner_id, int weight);
     ~Dog();
 
-    int getWeight() const;
-    void setWeight(int weight);
+    int get_weight() const;
+    void set_weight(int weight);
 
-    std::string makeSound() const override;
+    std::string make_sound() const override;
 };
 
 #endif
-

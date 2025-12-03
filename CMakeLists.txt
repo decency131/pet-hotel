@@ -5,17 +5,18 @@ project(ftxui-starter
   VERSION 1.0.0
 )
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# --- Fetch FTXUI --------------------------------------------------------------
+# --- FetchContent setup ------------------------------------------------------
 include(FetchContent)
 
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 set(FETCHCONTENT_QUIET OFF)
 
+# --- Fetch FTXUI -------------------------------------------------------------
 FetchContent_Declare(ftxui
   GIT_REPOSITORY https://github.com/arthursonzogni/ftxui.git
   GIT_TAG        v5.0.0
@@ -26,13 +27,25 @@ FetchContent_Declare(ftxui
 FetchContent_MakeAvailable(ftxui)
 # ------------------------------------------------------------------------------
 
+# --- Fetch nlohmann_json -----------------------------------------------------
+FetchContent_Declare(json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG        v3.12.0      # or another specific version you prefer
+  GIT_PROGRESS   TRUE
+  GIT_SHALLOW    TRUE
+  EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(json)
+# ------------------------------------------------------------------------------
+
 add_executable(ftxui-starter src/main.cpp)
 target_include_directories(ftxui-starter PRIVATE src)
 
 target_link_libraries(ftxui-starter
   PRIVATE ftxui::screen
   PRIVATE ftxui::dom
-  PRIVATE ftxui::component  # Not needed for this example.
+  PRIVATE ftxui::component
+  PRIVATE nlohmann_json::nlohmann_json
 )
 
 if (EMSCRIPTEN)

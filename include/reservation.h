@@ -2,34 +2,30 @@
 #define RESERVATION_H
 
 #include <vector>
-#include <string>
+#include <chrono>
 #include "animal.h"
 
 class Reservation {
 private:
     int ID;
-    std::string startDate;
-    std::string endDate;
+    std::chrono::year_month_day startDate;
+    std::chrono::year_month_day endDate;
     std::vector<Animal*> animals;
-    bool putTogether;
 
 public:
     Reservation();
-    Reservation(int ID, const std::string& startDate, const std::string& endDate, const std::vector<Animal*>& animals, bool putTogether);
+    Reservation(int ID, const std::string startDate, const std::string endDate, const std::vector<Animal*>& animals);
     ~Reservation();
 
-    int getID() const;
-    std::string getStartDate() const;
-    std::string getEndDate() const;
-    std::vector<Animal*> getAnimals() const;
-    bool getPutTogether() const;
+    int get_ID() const;
+    std::chrono::year_month_day get_startDate() const;
+    std::chrono::year_month_day get_endDate() const;
+    std::vector<Animal*> get_animals() const;
 
-    void setID(int id);
-    void setStartDate(const std::string& date);
-    void setEndDate(const std::string& date);
-    void setAnimals(const std::vector<Animal*>& animalList);
-    void setPutTogether(bool val);
+    void set_ID(int id);
+    void set_startDate(const std::chrono::year_month_day date);
+    void set_endDate(const std::chrono::year_month_day date);
+    void set_animals(const std::vector<Animal*>& animalList);
 };
 
 #endif
-

@@ -3,21 +3,26 @@
 
 #include <string>
 #include <vector>
+
 #include "animal.h"
+#include "cat.h"
+#include "dog.h"
 #include "kennel.h"
 #include "reservation.h"
+#include "rodent.h"
 
 class PetHotel {
-private:
+   private:
     std::string name;
     std::string address;
     std::vector<Animal*> animals;
     std::vector<Kennel*> kennels;
     std::vector<Reservation*> reservations;
+    std::string filename;
 
-public:
+   public:
     PetHotel();
-    PetHotel(const std::string& name, const std::string& address, const std::vector<Animal*>& animals, const std::vector<Kennel*>& kennels, const std::vector<Reservation*>& reservations);
+    PetHotel(const std::string& jsonfile);
     ~PetHotel();
 
     std::string getName() const;
@@ -34,4 +39,3 @@ public:
 };
 
 #endif
-

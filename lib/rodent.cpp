@@ -1,13 +1,14 @@
 #include "../include/rodent.h"
 
 Rodent::Rodent() {}
-Rodent::Rodent(int ID, const std::string& name, const std::string& birthDate, const std::string& breed, const std::string& careSchedule, const std::string& type)
-    : Animal(ID, name, birthDate, breed, careSchedule), type(type) {}
+Rodent::Rodent(int ID, const std::string& name, int age, const std::string& breed,
+               const std::string& careSchedule, bool neighbours, int owner_id,
+               const std::string& type)
+    : Animal(ID, name, age, breed, careSchedule, neighbours, owner_id), type(type) {}
 
 Rodent::~Rodent() {}
 
-std::string Rodent::getType() const { return type; }
-void Rodent::setType(const std::string& t) { type = t; }
+std::string Rodent::get_type() const { return type; }
+void Rodent::set_type(const std::string& t) { type = t; }
 
-std::string Rodent::makeSound() const { return "Squeak!"; }
-
+std::string Rodent::make_sound() const { return "Squeak!"; }

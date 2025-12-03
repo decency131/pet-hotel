@@ -6,17 +6,16 @@ Kennel::Kennel(int ID, const std::string& size, int capacity, const std::string&
 
 Kennel::~Kennel() {}
 
-int Kennel::getID() const { return ID; }
-std::string Kennel::getSize() const { return size; }
-int Kennel::getCapacity() const { return capacity; }
-std::string Kennel::getType() const { return type; }
-std::vector<Animal*> Kennel::getAnimals() const { return animals; }
-bool Kennel::getIsEmpty() const { return isEmpty; }
+int Kennel::get_ID() const { return ID; }
+std::string Kennel::get_size() const { return size; }
+int Kennel::get_capacity() const { return capacity; }
+std::string Kennel::get_type() const { return type; }
+std::vector<Animal*> Kennel::get_animals() const { return animals; }
+bool Kennel::get_isEmpty() const { return isEmpty; }
 
-void Kennel::setID(int id) { ID = id; }
-void Kennel::setSize(const std::string& s) { size = s; }
-void Kennel::setCapacity(int cap) { capacity = cap; }
-void Kennel::setType(const std::string& t) { type = t; }
-void Kennel::setAnimals(const std::vector<Animal*>& a) { animals = a; }
-void Kennel::setIsEmpty(bool val) { isEmpty = val; }
-
+void Kennel::set_ID(int id) { ID = id; }
+void Kennel::set_size(const std::string& s) { size = s; }
+void Kennel::set_capacity(int cap) { capacity = cap; }
+void Kennel::set_type(const std::string& t) { type = t; }
+void Kennel::set_animals(const std::vector<Animal*>& a) { animals = a; }
+void Kennel::set_isEmpty(bool val) { isEmpty = val; }
