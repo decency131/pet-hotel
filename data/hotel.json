@@ -1,0 +1,82 @@
+{
+    "address": "123 Doggo Street",
+    "animals": [
+        {
+            "age": 4,
+            "breed": "Golden Retriever",
+            "care": "Feed twice a day, walk morning/evening",
+            "id": 1,
+            "name": "Max",
+            "neighbours": true,
+            "owner_id": 10,
+            "type": "dog",
+            "weight": 30
+        },
+        {
+            "age": 2,
+            "breed": "British Shorthair",
+            "care": "Feed twice a day, clean litter daily",
+            "id": 2,
+            "name": "Luna",
+            "neighbours": false,
+            "owner_id": 11,
+            "type": "cat",
+            "weight": 5
+        },
+        {
+            "age": 1,
+            "breed": "Dwarf hamster",
+            "care": "Refill water daily, fresh veggies",
+            "id": 3,
+            "name": "Nibbles",
+            "neighbours": true,
+            "owner_id": 12,
+            "rodent_type": "hamster",
+            "type": "dog"
+        }
+    ],
+    "kennels": [
+        {
+            "animals": [
+                1
+            ],
+            "id": 1,
+            "size": "big"
+        },
+        {
+            "animals": [
+                2
+            ],
+            "id": 2,
+            "size": "small"
+        },
+        {
+            "animals": [
+                3
+            ],
+            "id": 3,
+            "size": "rodent"
+        }
+    ],
+    "name": "Happy Paws Hotel",
+    "reservations": [
+        {
+            "animals": [
+                1
+            ],
+            "id": 100
+        },
+        {
+            "animals": [
+                2
+            ],
+            "id": 101
+        },
+        {
+            "animals": [
+                3
+            ],
+            "id": 102
+        }
+    ]
+}

@@ -38,7 +38,22 @@ FetchContent_Declare(json
 FetchContent_MakeAvailable(json)
 # ------------------------------------------------------------------------------
 
-add_executable(ftxui-starter src/main.cpp)
+add_executable(ftxui-starter
+    src/main.cpp
+    include/pethotel.h
+    include/animal.h
+    include/cat.h
+    include/dog.h
+    include/rodent.h
+    include/kennel.h
+    include/reservation.h
+    lib/pethotel.cpp
+    lib/animal.cpp
+    lib/cat.cpp
+    lib/dog.cpp
+    lib/rodent.cpp
+    lib/kennel.cpp
+    lib/reservation.cpp)
 target_include_directories(ftxui-starter PRIVATE src)
 
 target_link_libraries(ftxui-starter
