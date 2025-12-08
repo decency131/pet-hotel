@@ -8,7 +8,8 @@ Rodent::Rodent(int ID, const std::string& name, int age, const std::string& bree
 
 Rodent::~Rodent() {}
 
-std::string Rodent::get_type() const { return type; }
-void Rodent::set_type(const std::string& t) { type = t; }
+std::string Rodent::get_rod_type() const { return type; }
+void Rodent::set_rod_type(const std::string& t) { type = t; }
 
 std::string Rodent::make_sound() const { return "Squeak!"; }
+std::string Rodent::get_type() const { return "rodent"; }

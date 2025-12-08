@@ -36,6 +36,7 @@ class Animal {
     void set_neighbours(bool neighbours);
 
     virtual std::string make_sound() const = 0;
+    virtual std::string get_type() const = 0;
 };
 
 #endif

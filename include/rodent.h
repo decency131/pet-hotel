@@ -13,10 +13,11 @@ class Rodent : public Animal {
            const std::string& careSchedule, bool neighbours, int owner_id, const std::string& type);
     ~Rodent();
 
-    std::string get_type() const;
-    void set_type(const std::string& type);
+    std::string get_rod_type() const;
+    void set_rod_type(const std::string& type);
 
     std::string make_sound() const override;
+    std::string get_type() const override;
 };
 
 #endif

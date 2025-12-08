@@ -11,3 +11,4 @@ int Dog::get_weight() const { return weight; }
 void Dog::set_weight(int w) { weight = w; }
 
 std::string Dog::make_sound() const { return "Woof!"; }
+std::string Dog::get_type() const { return "dog"; }

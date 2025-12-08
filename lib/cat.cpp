@@ -11,3 +11,4 @@ int Cat::get_weight() const { return weight; }
 void Cat::set_weight(int w) { weight = w; }
 
 std::string Cat::make_sound() const { return "Meow!"; }
+std::string Cat::get_type() const { return "cat"; }

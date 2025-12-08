@@ -25,17 +25,17 @@ class PetHotel {
     PetHotel(const std::string& jsonfile);
     ~PetHotel();
 
-    std::string getName() const;
-    std::string getAddress() const;
-    std::vector<Animal*> getAnimals() const;
-    std::vector<Kennel*> getKennels() const;
-    std::vector<Reservation*> getReservations() const;
+    std::string get_name() const;
+    std::string get_address() const;
+    std::vector<Animal*> get_animals() const;
+    std::vector<Kennel*> get_kennels() const;
+    std::vector<Reservation*> get_reservations() const;
 
-    void setName(const std::string& n);
-    void setAddress(const std::string& a);
-    void setAnimals(const std::vector<Animal*>& animalList);
-    void setKennels(const std::vector<Kennel*>& kennelList);
-    void setReservations(const std::vector<Reservation*>& resList);
+    void set_name(const std::string& n);
+    void set_address(const std::string& a);
+    void set_animals(const std::vector<Animal*>& animalList);
+    void set_kennels(const std::vector<Kennel*>& kennelList);
+    void set_reservations(const std::vector<Reservation*>& resList);
 };
 
 #endif

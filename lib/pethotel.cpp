@@ -134,8 +134,8 @@ PetHotel::~PetHotel() {
         }
         if(dynamic_cast<Rodent*>(a)){
             auto* r = (Rodent*)a;
-            ja["type"] = "dog";
-            ja["rodent_type"] = r->get_type();
+            ja["type"] = "rodent";
+            ja["rodent_type"] = r->get_rod_type();
         }
         
         j["animals"].push_back(ja);
@@ -165,7 +165,10 @@ PetHotel::~PetHotel() {
         
         start_date_s << int(start_date.year()) << "-" << unsigned(start_date.month()) << "-" << unsigned(start_date.day());
         end_date_s << int(end_date.year()) << "-" << unsigned(end_date.month()) << "-" << unsigned(end_date.day());
-
+        
+        jr["start"] = start_date_s.str();
+        jr["end"] = end_date_s.str();
+        
         for (auto* a : r->get_animals()){
             jr["animals"].push_back(a->get_ID());
         }
@@ -179,14 +182,14 @@ PetHotel::~PetHotel() {
     }
 }
 
-std::string PetHotel::getName() const { return name; }
-std::string PetHotel::getAddress() const { return address; }
-std::vector<Animal*> PetHotel::getAnimals() const { return animals; }
-std::vector<Kennel*> PetHotel::getKennels() const { return kennels; }
-std::vector<Reservation*> PetHotel::getReservations() const { return reservations; }
+std::string PetHotel::get_name() const { return name; }
+std::string PetHotel::get_address() const { return address; }
+std::vector<Animal*> PetHotel::get_animals() const { return animals; }
+std::vector<Kennel*> PetHotel::get_kennels() const { return kennels; }
+std::vector<Reservation*> PetHotel::get_reservations() const { return reservations; }
 
-void PetHotel::setName(const std::string& n) { name = n; }
-void PetHotel::setAddress(const std::string& a) { address = a; }
-void PetHotel::setAnimals(const std::vector<Animal*>& v) { animals = v; }
-void PetHotel::setKennels(const std::vector<Kennel*>& v) { kennels = v; }
-void PetHotel::setReservations(const std::vector<Reservation*>& v) { reservations = v; }
+void PetHotel::set_name(const std::string& n) { name = n; }
+void PetHotel::set_address(const std::string& a) { address = a; }
+void PetHotel::set_animals(const std::vector<Animal*>& v) { animals = v; }
+void PetHotel::set_kennels(const std::vector<Kennel*>& v) { kennels = v; }
+void PetHotel::set_reservations(const std::vector<Reservation*>& v) { reservations = v; }

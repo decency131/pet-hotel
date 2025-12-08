@@ -17,6 +17,7 @@ class Dog : public Animal {
     void set_weight(int weight);
 
     std::string make_sound() const override;
+    std::string get_type() const override;
 };
 
 #endif
