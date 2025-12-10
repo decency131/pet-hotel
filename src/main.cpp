@@ -129,7 +129,7 @@ int main() {
 
     Component pet_list_button = Button("List pets", [&] { navigate_to(4); });
 
-    Component reservation_button = Button("Make a reservation", [&] { navigate_to(5); });
+    Component reservation_add_button = Button("Make a reservation", [&] { navigate_to(5); });
 
     Component reservation_submit_button = Button("Submit", [&] {
         // TODO
@@ -144,7 +144,7 @@ int main() {
     Component kennel_add_submit_button = Button("Submit", [&] {
         // TODO
     });
-    
+
     Component kennel_remove_submit_button = Button("Submit", [&] {
         // TODO
     });
@@ -179,7 +179,7 @@ int main() {
 
     Component client_page_container = Container::Vertical({
         pet_list_button,
-        reservation_button,
+        reservation_add_button,
     });
 
     Component client_page = Renderer(client_page_container, [&] {
@@ -207,7 +207,7 @@ int main() {
 
     Component employee_page_container = Container::Vertical({
         pet_list_button,
-        reservation_button,
+        reservation_add_button,
         kennel_button,
     });
 
@@ -406,7 +406,7 @@ int main() {
         reservation_submit_button,
     });
 
-    Component reservation_page = Renderer(reservation_container, [&] {
+    Component reservation_add_page = Renderer(reservation_container, [&] {
         Element title;
         Elements body;
 
@@ -477,22 +477,22 @@ int main() {
     });
 
     Components kennel_remove_checks;
-    
+
     for (Kennel* kennel : hotel.get_kennels()) {
         if (!kennel) continue;
-    
+
         std::string label = std::to_string(kennel->get_ID());
-        
+
         // NEW: a checkbox for this kennel
         auto selected = std::make_shared<bool>(false);
         kennel_remove_selected.push_back(selected);
-    
+
         std::string checkbox_label = "Kennel " + label;
         kennel_remove_checks.push_back(Checkbox(checkbox_label, selected.get()));
     }
-    
+
     Component kennel_remove_checks_container = Container::Vertical(kennel_remove_checks);
-    
+
     Component kennel_remove_container = Container::Vertical({
         kennel_remove_checks_container,
         kennel_remove_submit_button,
@@ -500,7 +500,7 @@ int main() {
 
     Component kennel_remove_page = Renderer(kennel_remove_container, [&] {
         Elements body;
-    
+
         if (current_user == 0) {
             if (kennel_remove_checks.empty()) {
                 body.push_back(text("There are no kennels to remove.") | dim);
@@ -508,13 +508,13 @@ int main() {
                 body.push_back(text("Select kennels to remove:"));
                 body.push_back(kennel_remove_checks_container->Render());
             }
-    
+
             body.push_back(separator());
             body.push_back(kennel_remove_submit_button->Render());
         } else {
             body.push_back(text("Only employees can remove kennels.") | dim);
         }
-    
+
         return vbox({
                    text("Remove kennels") | bold,
                    separator(),
@@ -526,15 +526,15 @@ int main() {
     // tab container
     Component pages = Container::Tab(
         {
-            main_menu,           // 0
-            client_choice_page,  // 1
-            client_page,         // 2
-            employee_page,       // 3
-            pet_list_page,       // 4
-            reservation_page,    // 5
-            kennel_page,         // 6
-            kennel_add_page,     // 7
-            kennel_remove_page   // 8
+            main_menu,             // 0
+            client_choice_page,    // 1
+            client_page,           // 2
+            employee_page,         // 3
+            pet_list_page,         // 4
+            reservation_add_page,  // 5
+            kennel_page,           // 6
+            kennel_add_page,       // 7
+            kennel_remove_page     // 8
         },
         &page_index);
 
