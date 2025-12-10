@@ -3,11 +3,37 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/string.hpp>
+#include <string>
 #include <vector>
 
 #include "../include/pethotel.h"
 
 using namespace ftxui;
+
+Component HighlightedToggle(std::vector<std::string>* entries, int* selected) {
+    MenuOption option = MenuOption::Toggle();
+
+    option.entries = entries;
+    option.selected = selected;
+
+    option.entries_option.transform = [](const EntryState& state) {
+        Element e = text(state.label);
+
+        if (state.active) {
+            e = e | bold | color(Color::Yellow);
+        } else {
+            e = e | color(Color::GrayDark);
+        }
+
+        if (state.focused) {
+            e = e | underlined;
+        }
+
+        return e;
+    };
+
+    return Menu(option);
+}
 
 int main() {
     std::string data = "../data/hotel.json";
@@ -27,10 +53,37 @@ int main() {
     // 3 = employee page
     // 4 = pet list page
     // 5 = reservation page
+    // 6 = kennel page
+    // 7 = kennel add page
     int page_index = 0;
 
     // nav history for the back button
     std::vector<int> history;
+
+    // reservation form state
+    std::vector<std::string> clients = {"Client 1", "Client 2"};
+    int client_selected = 0;
+
+    std::vector<std::string> pet_type = {"cat", "dog", "rodent"};
+    int pet_type_selected = 0;
+
+    std::string pet_name;
+    std::string pet_breed;
+    std::string pet_care_schedule;
+    std::string pet_rodent_type;
+    std::string pet_weight;
+
+    bool pet_neighbours = false;
+
+    // kenel add form state
+    std::vector<std::string> kennel_type = {"cat/dog", "rodent"};
+    int kennel_type_selected = 0;
+
+    std::vector<std::string> kennel_size = {"small", "medium", "large"};
+    int kennel_size_selected = 0;
+
+    // kennel remove form state
+    std::vector<std::shared_ptr<bool>> kennel_remove_selected;
 
     // nav functions, used for switching pages
     auto navigate_to = [&](int new_page) {
@@ -45,6 +98,7 @@ int main() {
         history.pop_back();
     };
 
+    // buttons
     Component back_button = Button("Back", go_back);
     Component exit_button = Button("Exit", [&] { screen.Exit(); });
 
@@ -63,17 +117,6 @@ int main() {
         employee_button,
     });
 
-    Component main_menu = Renderer(main_menu_buttons, [&] {
-        return vbox({
-                   text("Welcome to " + hotel.get_name() + " at " + hotel.get_address()) | bold,
-                   separator(),
-                   text("Are you a client or an employee?"),
-                   separator(),
-                   main_menu_buttons->Render(),
-               }) |
-               border;
-    });
-
     Component client1_button = Button("Client 1", [&] {
         current_user = 1;  // set selected client
         navigate_to(2);    // go to unified client page
@@ -87,6 +130,35 @@ int main() {
     Component pet_list_button = Button("List pets", [&] { navigate_to(4); });
 
     Component reservation_button = Button("Make a reservation", [&] { navigate_to(5); });
+
+    Component reservation_submit_button = Button("Submit", [&] {
+        // TODO
+    });
+
+    Component kennel_button = Button("Kennels", [&] { navigate_to(6); });
+
+    Component kennel_add_button = Button("Add kennel", [&] { navigate_to(7); });
+
+    Component kennel_remove_button = Button("Remove kennels", [&] { navigate_to(8); });
+
+    Component kennel_add_submit_button = Button("Submit", [&] {
+        // TODO
+    });
+    
+    Component kennel_remove_submit_button = Button("Submit", [&] {
+        // TODO
+    });
+
+    Component main_menu = Renderer(main_menu_buttons, [&] {
+        return vbox({
+                   text("Welcome to " + hotel.get_name() + " at " + hotel.get_address()) | bold,
+                   separator(),
+                   text("Are you a client or an employee?"),
+                   separator(),
+                   main_menu_buttons->Render(),
+               }) |
+               border;
+    });
 
     Component client_choice_container = Container::Vertical({
         client1_button,
@@ -133,12 +205,30 @@ int main() {
                border;
     });
 
-    // employee page
-    Component employee_page = Renderer([&] {
+    Component employee_page_container = Container::Vertical({
+        pet_list_button,
+        reservation_button,
+        kennel_button,
+    });
+
+    Component employee_page = Renderer(employee_page_container, [&] {
+        Element title;
+        Elements body;
+
+        if (current_user == 0) {
+            title = text("Employee") | bold;
+            body.push_back(employee_page_container->Render());
+
+        } else {
+            // Fallback if somehow no client is set
+            title = text("Employee") | bold;
+            body.push_back(text("Wrong user selected."));
+        }
+
         return vbox({
-                   text("Employee") | bold,
+                   title,
                    separator(),
-                   text("This is the page for an employee."),
+                   vbox(std::move(body)),
                }) |
                border;
     });
@@ -147,12 +237,12 @@ int main() {
         Element title;
         Elements tiles;
 
-        if (current_user > 0) {
+        if (current_user >= 0) {
             title = text("Pets of Client " + std::to_string(current_user)) | bold;
 
             for (Animal* animal : hotel.get_animals()) {
                 if (!animal) continue;
-                if (animal->get_owner_id() != current_user) continue;
+                if (current_user != 0 and animal->get_owner_id() != current_user) continue;
 
                 Elements lines;
 
@@ -212,6 +302,227 @@ int main() {
                border | flex;
     });
 
+    Components kennel_components;
+
+    Component kennel_add_remove = Container::Horizontal({kennel_add_button, kennel_remove_button});
+
+    for (Kennel* kennel : hotel.get_kennels()) {
+        if (!kennel) continue;
+
+        Elements lines;
+
+        lines.push_back(text("Type: " + kennel->get_type()));
+        if (kennel->get_type() != "rodent") lines.push_back(text("Size: " + kennel->get_size()));
+        if (kennel->is_empty()) {
+            lines.push_back(text("Empty"));
+        } else {
+            std::string pets = "Pets inside: ";
+            for (auto animal : kennel->get_animals()) {
+                pets += " " + animal->get_name();
+            }
+            lines.push_back(text(pets));
+        }
+
+        Component child = Renderer([lines] { return vbox(lines) | border; });
+
+        std::string label = std::to_string(kennel->get_ID());
+
+        kennel_components.push_back(Collapsible(label, child));
+    }
+
+    Component kennel_list_container = Container::Vertical(kennel_components);
+    Component kennel_container = Container::Vertical({kennel_add_remove, kennel_list_container});
+
+    Component kennel_page = Renderer(kennel_container, [&] {
+        Element title;
+        Elements tiles;
+
+        if (current_user == 0) {
+            title = text("Kennels") | bold;
+
+            if (kennel_components.empty()) {
+                tiles.push_back(text("You have no kennels.") | dim);
+            } else {
+                for (auto& c : kennel_components) {
+                    tiles.push_back(c->Render() | flex);
+                }
+            }
+        } else {
+            title = text("Kennels") | bold;
+            tiles.push_back(text("Wrong user selected.") | dim);
+        }
+
+        Elements rows;
+        for (size_t i = 0; i < tiles.size(); i += 2) {
+            if (i + 1 < tiles.size()) {
+                rows.push_back(hbox({
+                                   tiles[i],
+                                   tiles[i + 1],
+                               }) |
+                               flex);
+            } else {
+                rows.push_back(hbox({
+                                   tiles[i] | xflex,
+                                   filler(),
+                               }) |
+                               flex);
+            }
+        }
+
+        if (rows.empty()) {
+            rows.push_back(text("No kennels to show.") | dim);
+        }
+
+        Element grid = vbox(std::move(rows));
+
+        return vbox({
+                   title,
+                   separator(),
+                   kennel_add_remove->Render(),
+                   separator(),
+                   grid,
+               }) |
+               border | flex;
+    });
+
+    Component client_toggle = HighlightedToggle(&clients, &client_selected);
+    Component pet_type_toggle = HighlightedToggle(&pet_type, &pet_type_selected);
+    Component pet_name_input = Input("", &pet_name);
+    Component pet_breed_input = Input("", &pet_breed);
+    Component pet_care_schedule_input = Input("", &pet_care_schedule);
+    Component pet_rodent_type_input = Input("", &pet_rodent_type);
+    Component pet_weight_input = Input("", &pet_weight);
+    Component pet_neighbours_check = Checkbox("Can your pet have neighbours?", &pet_neighbours);
+
+    Component reservation_container = Container::Vertical({
+        client_toggle,
+        pet_type_toggle,
+        pet_name_input,
+        pet_breed_input,
+        pet_neighbours_check,
+        pet_care_schedule_input,
+        pet_weight_input,
+        pet_rodent_type_input,
+        reservation_submit_button,
+    });
+
+    Component reservation_page = Renderer(reservation_container, [&] {
+        Element title;
+        Elements body;
+
+        if (current_user >= 0) {
+            title = text("Reservation") | bold;
+
+            if (current_user == 0) body.push_back(client_toggle->Render());
+            body.push_back(pet_type_toggle->Render());
+            body.push_back(hbox({text("Pet name: "), pet_name_input->Render()}));
+            body.push_back(hbox({text("Pet breed: "), pet_breed_input->Render()}));
+            body.push_back(pet_neighbours_check->Render());
+            body.push_back(hbox({text("Pet care schedule: "), pet_care_schedule_input->Render()}));
+            if (pet_type_selected == 0 or pet_type_selected == 1)
+                body.push_back(hbox({text("Pet weight: "), pet_weight_input->Render()}));
+            if (pet_type_selected == 2)
+                body.push_back(hbox({text("Rodent type: "), pet_rodent_type_input->Render()}));
+
+            body.push_back(reservation_submit_button->Render());
+        } else {
+            // Fallback if somehow no client is set
+            title = text("Reservation") | bold;
+            body.push_back(text("No client selected."));
+        }
+
+        return vbox({
+                   title,
+                   separator(),
+                   vbox(std::move(body)),
+               }) |
+               border;
+    });
+
+    Component kennel_type_toggle = HighlightedToggle(&kennel_type, &kennel_type_selected);
+    Component kennel_size_toggle = HighlightedToggle(&kennel_size, &kennel_size_selected);
+
+    Component kennel_add_container = Container::Vertical({
+        kennel_type_toggle,
+        kennel_size_toggle,  // will only be shown when type is cat/dog
+        kennel_add_submit_button,
+    });
+
+    Component kennel_add_page = Renderer(kennel_add_container, [&] {
+        Elements body;
+
+        if (current_user == 0) {
+            body.push_back(text("Select kennel type:"));
+            body.push_back(kennel_type_toggle->Render());
+
+            // show size choice if the type is cat or dog
+            if (kennel_type_selected == 0) {
+                body.push_back(separator());
+                body.push_back(text("Select kennel size:"));
+                body.push_back(kennel_size_toggle->Render());
+            }
+
+            body.push_back(separator());
+            body.push_back(kennel_add_submit_button->Render());
+        } else {
+            body.push_back(text("Only employees can add kennels.") | dim);
+        }
+
+        return vbox({
+                   text("Add kennel") | bold,
+                   separator(),
+                   vbox(std::move(body)),
+               }) |
+               border;
+    });
+
+    Components kennel_remove_checks;
+    
+    for (Kennel* kennel : hotel.get_kennels()) {
+        if (!kennel) continue;
+    
+        std::string label = std::to_string(kennel->get_ID());
+        
+        // NEW: a checkbox for this kennel
+        auto selected = std::make_shared<bool>(false);
+        kennel_remove_selected.push_back(selected);
+    
+        std::string checkbox_label = "Kennel " + label;
+        kennel_remove_checks.push_back(Checkbox(checkbox_label, selected.get()));
+    }
+    
+    Component kennel_remove_checks_container = Container::Vertical(kennel_remove_checks);
+    
+    Component kennel_remove_container = Container::Vertical({
+        kennel_remove_checks_container,
+        kennel_remove_submit_button,
+    });
+
+    Component kennel_remove_page = Renderer(kennel_remove_container, [&] {
+        Elements body;
+    
+        if (current_user == 0) {
+            if (kennel_remove_checks.empty()) {
+                body.push_back(text("There are no kennels to remove.") | dim);
+            } else {
+                body.push_back(text("Select kennels to remove:"));
+                body.push_back(kennel_remove_checks_container->Render());
+            }
+    
+            body.push_back(separator());
+            body.push_back(kennel_remove_submit_button->Render());
+        } else {
+            body.push_back(text("Only employees can remove kennels.") | dim);
+        }
+    
+        return vbox({
+                   text("Remove kennels") | bold,
+                   separator(),
+                   vbox(std::move(body)),
+               }) |
+               border;
+    });
+
     // tab container
     Component pages = Container::Tab(
         {
@@ -220,7 +531,10 @@ int main() {
             client_page,         // 2
             employee_page,       // 3
             pet_list_page,       // 4
-            // reservation_page     // 5
+            reservation_page,    // 5
+            kennel_page,         // 6
+            kennel_add_page,     // 7
+            kennel_remove_page   // 8
         },
         &page_index);
 

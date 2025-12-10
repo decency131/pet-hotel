@@ -12,7 +12,7 @@ private:
     int capacity;
     std::string type;
     std::vector<Animal*> animals;
-    bool isEmpty;
+    bool empty;
 
 public:
     Kennel();
@@ -24,14 +24,14 @@ public:
     int get_capacity() const;
     std::string get_type() const;
     std::vector<Animal*> get_animals() const;
-    bool get_isEmpty() const;
+    bool is_empty() const;
 
     void set_ID(int id);
     void set_size(const std::string& size);
     void set_capacity(int cap);
     void set_type(const std::string& type);
     void set_animals(const std::vector<Animal*>& animalList);
-    void set_isEmpty(bool val);
+    void is_empty(bool val);
 };
 
 #endif
