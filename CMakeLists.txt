@@ -53,7 +53,17 @@ add_executable(ftxui-starter
     lib/dog.cpp
     lib/rodent.cpp
     lib/kennel.cpp
-    lib/reservation.cpp)
+    lib/reservation.cpp
+
+    lib/highlighted_toggle.cpp
+    lib/main_menu_page.cpp
+    lib/client_choice_page.cpp
+    lib/client_page.cpp
+    lib/employee_page.cpp
+    lib/pet_list_page.cpp
+    lib/kennels_page.cpp
+    lib/reservations_page.cpp
+    )
 target_include_directories(ftxui-starter PRIVATE src)
 
 target_link_libraries(ftxui-starter
