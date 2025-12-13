@@ -98,23 +98,38 @@ int main() {
         history.pop_back();
     };
 
+    auto format_date = [](const std::chrono::year_month_day& d) {
+        std::ostringstream oss;
+        oss << int(d.year()) << "-" << unsigned(d.month()) << "-" << unsigned(d.day());
+        return oss.str();
+    };
+
+    auto is_animal_staying = [&](const Animal* animal) -> std::string {
+        using namespace std::chrono;
+
+        if (!animal) return "";
+
+        for (Reservation* res : hotel.get_reservations()) {
+            if (!res) continue;
+
+            for (Animal* a : res->get_animals()) {
+                if (!a) continue;
+                if (a->get_ID() == animal->get_ID()) {
+                    return format_date(res->get_startDate()) + " to " +
+                           format_date(res->get_endDate());
+                }
+            }
+        }
+
+        return "";
+    };
+
     // buttons
     Component back_button = Button("Back", go_back);
     Component exit_button = Button("Exit", [&] { screen.Exit(); });
 
     Component client_button = Button("Client", [&] {
         navigate_to(1);  // go to client selection
-    });
-
-    Component employee_button = Button("Employee", [&] {
-        // set current_user to employee when going to employee page
-        current_user = 0;
-        navigate_to(3);  // go to employee page
-    });
-
-    Component main_menu_buttons = Container::Vertical({
-        client_button,
-        employee_button,
     });
 
     Component client1_button = Button("Client 1", [&] {
@@ -127,13 +142,15 @@ int main() {
         navigate_to(2);    // go to unified client page
     });
 
+    Component employee_button = Button("Employee", [&] {
+        // set current_user to employee when going to employee page
+        current_user = 0;
+        navigate_to(3);  // go to employee page
+    });
+
     Component pet_list_button = Button("List pets", [&] { navigate_to(4); });
 
     Component reservation_add_button = Button("Make a reservation", [&] { navigate_to(5); });
-
-    Component reservation_submit_button = Button("Submit", [&] {
-        // TODO
-    });
 
     Component kennel_button = Button("Kennels", [&] { navigate_to(6); });
 
@@ -141,12 +158,24 @@ int main() {
 
     Component kennel_remove_button = Button("Remove kennels", [&] { navigate_to(8); });
 
+    Component reservation_list_button = Button("List reservations", [&] { navigate_to(9); });
+
     Component kennel_add_submit_button = Button("Submit", [&] {
         // TODO
     });
 
     Component kennel_remove_submit_button = Button("Submit", [&] {
         // TODO
+    });
+
+    Component reservation_submit_button = Button("Submit", [&] {
+        // TODO
+    });
+
+    // pages
+    Component main_menu_buttons = Container::Vertical({
+        client_button,
+        employee_button,
     });
 
     Component main_menu = Renderer(main_menu_buttons, [&] {
@@ -192,7 +221,6 @@ int main() {
             body.push_back(client_page_container->Render());
 
         } else {
-            // Fallback if somehow no client is set
             title = text("Client") | bold;
             body.push_back(text("No client selected."));
         }
@@ -208,6 +236,7 @@ int main() {
     Component employee_page_container = Container::Vertical({
         pet_list_button,
         reservation_add_button,
+        reservation_list_button,
         kennel_button,
     });
 
@@ -257,6 +286,10 @@ int main() {
 
                 std::string neighbours_str = animal->get_neighbours() ? "Yes" : "No";
                 lines.push_back(text("Can have neighbours: " + neighbours_str));
+
+                std::string staying = is_animal_staying(animal);
+                std::string staying_str = !staying.empty() ? staying : "No";
+                lines.push_back(text("Staying at the hotel: " + staying_str));
 
                 Element tile = vbox(std::move(lines)) | border | flex;
 
@@ -318,7 +351,7 @@ int main() {
         } else {
             std::string pets = "Pets inside: ";
             for (auto animal : kennel->get_animals()) {
-                pets += " " + animal->get_name();
+                pets += " " + animal->get_name() + " (ID " + std::to_string(animal->get_ID()) + ")";
             }
             lines.push_back(text(pets));
         }
@@ -394,7 +427,7 @@ int main() {
     Component pet_weight_input = Input("", &pet_weight);
     Component pet_neighbours_check = Checkbox("Can your pet have neighbours?", &pet_neighbours);
 
-    Component reservation_container = Container::Vertical({
+    Component reservation_add_container = Container::Vertical({
         client_toggle,
         pet_type_toggle,
         pet_name_input,
@@ -406,7 +439,7 @@ int main() {
         reservation_submit_button,
     });
 
-    Component reservation_add_page = Renderer(reservation_container, [&] {
+    Component reservation_add_page = Renderer(reservation_add_container, [&] {
         Element title;
         Elements body;
 
@@ -523,6 +556,66 @@ int main() {
                border;
     });
 
+    Components reservation_list_components;
+
+    for (Reservation* res : hotel.get_reservations()) {
+        if (!res) continue;
+
+        Elements lines;
+
+        lines.push_back(text("Reservation ID: " + std::to_string(res->get_ID())) | bold);
+        lines.push_back(separator());
+
+        auto fmt = [](const std::chrono::year_month_day& d) {
+            std::ostringstream oss;
+            oss << int(d.year()) << "-" << unsigned(d.month()) << "-" << unsigned(d.day());
+            return oss.str();
+        };
+
+        lines.push_back(text("Start date: " + fmt(res->get_startDate())));
+        lines.push_back(text("End date:   " + fmt(res->get_endDate())));
+
+        if (res->get_animals().empty()) {
+            lines.push_back(text("Animals: none") | dim);
+        } else {
+            lines.push_back(text("Animals:"));
+            for (Animal* a : res->get_animals()) {
+                if (!a) continue;
+                lines.push_back(
+                    text("  - " + a->get_name() + " (ID " + std::to_string(a->get_ID()) + ")"));
+            }
+        }
+
+        Component child = Renderer([lines] { return vbox(lines) | border; });
+
+        std::string label = "Reservation " + std::to_string(res->get_ID());
+        reservation_list_components.push_back(Collapsible(label, child));
+    }
+
+    Component reservation_list_container = Container::Vertical(reservation_list_components);
+
+    Component reservation_list_page = Renderer(reservation_list_container, [&] {
+        Element title = text("Reservations") | bold;
+        Elements tiles;
+
+        if (reservation_list_components.empty()) {
+            tiles.push_back(text("There are no reservations.") | dim);
+        } else {
+            for (auto& c : reservation_list_components) {
+                tiles.push_back(c->Render() | flex);
+            }
+        }
+
+        Element list = vbox(std::move(tiles));
+
+        return vbox({
+                   title,
+                   separator(),
+                   list,
+               }) |
+               border | flex;
+    });
+
     // tab container
     Component pages = Container::Tab(
         {
@@ -534,7 +627,8 @@ int main() {
             reservation_add_page,  // 5
             kennel_page,           // 6
             kennel_add_page,       // 7
-            kennel_remove_page     // 8
+            kennel_remove_page,    // 8
+            reservation_list_page  // 9
         },
         &page_index);
 
